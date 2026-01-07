@@ -6,6 +6,8 @@ import random
 from bthl.api.dmxdata import dmx_buffer
 from bthl.modal.sender_modal import UDPClientToggleModal
 
+from bthl.api.callbacks import run_callbacks
+
 def send_udp_packet(ip, port, message):
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     try:
@@ -33,6 +35,9 @@ def send(scene, depsgraph):
     #we should only send if the udp client is active
     if not UDPClientToggleModal.get_udp_client_state(bpy.context):
         return
+    
+    #trigger all callbacks to update dmx_buffer
+    run_callbacks()
     
     target_ip = "127.0.0.1"
     target_port = 7000

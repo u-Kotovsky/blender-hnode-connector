@@ -1,4 +1,4 @@
-from modules.bthl.util.general import scale_number
+from bthl.util.general import scale_number
 
 def getPositionAsDMX(loc, range, bytesPerAxis=1):
     xscale = int(scale_number(loc.x, 0, (2**(8*bytesPerAxis))-1, -range, range))
