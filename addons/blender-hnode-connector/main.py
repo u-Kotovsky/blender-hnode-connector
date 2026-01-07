@@ -15,35 +15,6 @@ from sbstudio.plugin.colors import get_color_of_drone
 #value: channel value
 data_dict = {}
 
-def scale_number(unscaled, to_min, to_max, from_min, from_max):
-    return (to_max-to_min)*(unscaled-from_min)/(from_max-from_min)+to_min
-
-def getPositionAsDMX(loc, range, bytesPerAxis=1):
-    xscale = int(scale_number(loc.x, 0, (2**(8*bytesPerAxis))-1, -range, range))
-    yscale = int(scale_number(loc.y, 0, (2**(8*bytesPerAxis))-1, -range, range))
-    zscale = int(scale_number(loc.z, 0, (2**(8*bytesPerAxis))-1, -range, range))
-    #now convert to bytes
-    xbytes = xscale.to_bytes(bytesPerAxis, byteorder='big')
-    ybytes = yscale.to_bytes(bytesPerAxis, byteorder='big')
-    zbytes = zscale.to_bytes(bytesPerAxis, byteorder='big')
-    return xbytes + ybytes + zbytes
-
-def getRotationAsDMX(rot, range, bytesPerAxis=1):
-    xscale = int(scale_number(rot.x, 0, (2**(8*bytesPerAxis))-1, -range, range))
-    yscale = int(scale_number(rot.y, 0, (2**(8*bytesPerAxis))-1, -range, range))
-    zscale = int(scale_number(rot.z, 0, (2**(8*bytesPerAxis))-1, -range, range))
-    #now convert to bytes
-    xbytes = xscale.to_bytes(bytesPerAxis, byteorder='big')
-    ybytes = yscale.to_bytes(bytesPerAxis, byteorder='big')
-    zbytes = zscale.to_bytes(bytesPerAxis, byteorder='big')
-    return xbytes + ybytes + zbytes
-
-def getColorAsDMX(color):
-    r = int(scale_number(color[0], 0,255,0,1))
-    g = int(scale_number(color[1], 0,255,0,1))
-    b = int(scale_number(color[2], 0,255,0,1))
-    return bytes([r, g, b])
-
 def gen_drone_data(start_channel):
     #get all the drones
     drones = Collections.find_drones(create=False).objects
