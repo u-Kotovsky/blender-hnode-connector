@@ -10,6 +10,7 @@ import sys
 from bthl.panel.global_control import GlobalControlPanel
 from bthl.modal.sender_modal import UDPClientToggleModal
 from bthl.tasks.sender import UDPClientTasks
+from bthl.tasks.receiver import receive
 
 classes = {
     GlobalControlPanel,
@@ -25,9 +26,13 @@ def register():
         bpy.utils.register_class(cls)
     for task in tasks:
         task.register(task)
+    
+    bpy.app.timers.register(receive, persistent=True)
 
 def unregister():
     for cls in classes:
         bpy.utils.unregister_class(cls)
     for task in tasks:
         task.unregister(task)
+    
+    bpy.app.timers.unregister(receive)
