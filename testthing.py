@@ -20,12 +20,12 @@ def gen_truss_data(start_channel, object):
     
     combined = getPositionAsDMX(loc, range=50, bytesPerAxis=2)
     mat = object.matrix_world.copy()
-    eul = mat.to_euler("ZXY")
-    eul.x = 0
-    #eul.y = 0
-    eul.z = 0
+    oq = mat.to_quaternion()
+    #oq = object.rotation_quaternion
+    q = mathutils.Quaternion((oq.w, -oq.x, -oq.z, -oq.y))
+    #oq.x, oq.y, oq.z, oq.w = -oq.x, -oq.z, -oq.y, oq.w
     
-    combined += getRotationAsDMX(eul, range=math.radians(540 / 2), bytesPerAxis=2)
+    combined += getRotationAsDMX(q.to_euler("XYZ"), range=math.radians(540 / 2), bytesPerAxis=2)
     #hardcoded additional info
     combined.append(0) #fixture offset
     combined.append(0) #FX Selector
