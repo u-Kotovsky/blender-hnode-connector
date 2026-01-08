@@ -9,15 +9,21 @@ sock = None
 def receive() -> float:
     global sock
 
+    receivebuffer_size = 64
+
     #receive via udp socket
     if sock is None:
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        #make the receive buffer small
+        sock.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF, receivebuffer_size)
         #bind localhost on port 7001
         sock.bind(("localhost", 7001))
         sock.setblocking(False)
     
+    update_rate = 0.001
+
     try:
-        data, addr = sock.recvfrom(10)  # buffer size is 65535 bytes
+        data, addr = sock.recvfrom(receivebuffer_size)
         print(f"Received message from {addr}: {data}")
         #the data coming in is a signed long long in bytes, big endian
         milliseconds = int.from_bytes(data[0:4], byteorder='big', signed=True)
@@ -36,10 +42,11 @@ def receive() -> float:
         if milliseconds > 0:
             frame += int((milliseconds / 1000) * fps)
         #set the current frame of the scene
+        #check if we are still on this frame, if so do nothing
+        if scene.frame_current == frame:
+            return update_rate
         scene.frame_set(frame)
-        return 0.001
+        return update_rate
     except BlockingIOError:
         #no data received
-        return 0.001
-
-    return 0.001  # Call again after 1.0 seconds
+        return update_rate
