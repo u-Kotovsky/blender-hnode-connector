@@ -1,7 +1,7 @@
 import bpy
-from bpy.types import Operator
+from bpy.types import Operator, Context
 from bpy.props import BoolProperty
-
+from typing import TYPE_CHECKING
 
 class UDPClientToggleModal(Operator):
     """Simple toggle operator for UDP client on/off"""
@@ -13,10 +13,10 @@ class UDPClientToggleModal(Operator):
     udp_client_active_prop_name = "udp_client_active"
 
     @staticmethod
-    def get_udp_client_state(context):
+    def get_udp_client_state(context: Context):
         return getattr(context.scene, UDPClientToggleModal.udp_client_active_prop_name, False)
     
-    def execute(self, context):
+    def execute(self, context: Context):
         """Toggle UDP client state and exit"""
         
         # Get current state or default to False
@@ -32,11 +32,13 @@ class UDPClientToggleModal(Operator):
         
         return {'FINISHED'}
 
-    def dynamic_text(context):
+    @staticmethod
+    def dynamic_text(context: Context):
         """Dynamically change button text based on state"""
         current_state = getattr(context.scene, UDPClientToggleModal.udp_client_active_prop_name, False)
         return "Stop UDP Client" if current_state else "Start UDP Client"
 
+    @staticmethod
     def register():
         """Register the operator"""
         # Add scene property to store UDP client state globally
@@ -46,7 +48,7 @@ class UDPClientToggleModal(Operator):
             default=False
         )
 
-
+    @staticmethod
     def unregister():
         """Unregister the operator"""
         # Remove scene property

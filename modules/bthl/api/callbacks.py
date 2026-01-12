@@ -1,11 +1,11 @@
-callbacks = []
+callbacks: list[callable] = []
 
-def add_callback(func):
+def add_callback(func: callable):
     #enforce no duplicates
     remove_callback(func)
     callbacks.append(func)
 
-def remove_callback(func):
+def remove_callback(func: callable):
     #check if callbacks has any entrys
     if not callbacks:
         return

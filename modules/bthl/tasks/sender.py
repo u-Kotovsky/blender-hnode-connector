@@ -4,7 +4,7 @@ import bpy
 from bthl.tasks.task import Task
 import random
 from bthl.api.dmxdata import dmx_buffer
-from bthl.modal.sender_modal import UDPClientToggleModal
+from bthl.operator.sender_modal import UDPClientToggleModal
 
 from bthl.api.callbacks import run_callbacks
 

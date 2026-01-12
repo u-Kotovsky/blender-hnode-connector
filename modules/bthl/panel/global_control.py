@@ -1,5 +1,5 @@
-from bpy.types import Panel
-import bthl.modal.sender_modal as sender_modal
+from bpy.types import Panel, Context
+import bthl.operator.sender_modal as sender_modal
 
 class GlobalControlPanel(Panel):
     bl_label = "HNode Connector"
@@ -10,9 +10,11 @@ class GlobalControlPanel(Panel):
     bl_region_type = 'UI'
     bl_category = 'HNode Connector'
 
-    def draw(self, context):
+    def draw(self, context: Context):
         layout = self.layout
-        scene = context.scene
+        if layout is None:
+            return
+        #scene = context.scene
 
         #render udp client
         layout.operator(sender_modal.UDPClientToggleModal.bl_idname, text=sender_modal.UDPClientToggleModal.dynamic_text(context))
