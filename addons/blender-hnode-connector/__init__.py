@@ -10,6 +10,7 @@ import sys
 from bthl.panel.global_control import GlobalControlPanel
 from bthl.modal.sender_modal import UDPClientToggleModal
 from bthl.tasks.sender import UDPClientTasks
+from bthl.tasks.customproperties import CustomPropertiesTask
 from bthl.tasks.receiver import receive
 
 classes = {
@@ -19,6 +20,7 @@ classes = {
 
 tasks = {
     UDPClientTasks,
+    CustomPropertiesTask,
 }
 
 def register():
