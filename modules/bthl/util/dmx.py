@@ -1,8 +1,9 @@
 import math
 from bthl.util.general import scale_number
 import struct
+from mathutils import Vector, Quaternion, Euler
 
-def getPositionAsDMX(loc, range, bytesPerAxis=1) -> bytearray:
+def getPositionAsDMX(loc: Vector, range: int, bytesPerAxis: int = 1) -> bytearray:
     xscale = int(scale_number(loc.x, 0, (2**(8*bytesPerAxis))-1, -range, range))
     yscale = int(scale_number(loc.y, 0, (2**(8*bytesPerAxis))-1, -range, range))
     zscale = int(scale_number(loc.z, 0, (2**(8*bytesPerAxis))-1, -range, range))
@@ -12,7 +13,7 @@ def getPositionAsDMX(loc, range, bytesPerAxis=1) -> bytearray:
     zbytes = struct.pack('>I', zscale)[-bytesPerAxis:]
     return bytearray(xbytes + ybytes + zbytes)
 
-def getRotationAsDMX(rot, range, bytesPerAxis=1) -> bytearray:
+def getRotationAsDMX(rot: Euler, range: int, bytesPerAxis: int = 1) -> bytearray:
     #constrict to 360 degrees as theres no point going beyond
     rot.x = rot.x % math.radians(360)
     rot.y = rot.y % math.radians(360)
@@ -27,7 +28,7 @@ def getRotationAsDMX(rot, range, bytesPerAxis=1) -> bytearray:
     zbytes = struct.pack('>I', zscale)[-bytesPerAxis:]
     return bytearray(xbytes + ybytes + zbytes)
 
-def getQuaternionAsDMX(rot, range, bytesPerAxis=1) -> bytearray:
+def getQuaternionAsDMX(rot: Quaternion, range: int, bytesPerAxis: int = 1) -> bytearray:
     xscale = int(scale_number(rot.x, 0, (2**(8*bytesPerAxis))-1, -range, range))
     yscale = int(scale_number(rot.y, 0, (2**(8*bytesPerAxis))-1, -range, range))
     zscale = int(scale_number(rot.z, 0, (2**(8*bytesPerAxis))-1, -range, range))
@@ -39,7 +40,7 @@ def getQuaternionAsDMX(rot, range, bytesPerAxis=1) -> bytearray:
     wbytes = struct.pack('>I', wscale)[-bytesPerAxis:]
     return bytearray(xbytes + ybytes + zbytes + wbytes)
 
-def getColorAsDMX(color):
+def getColorAsDMX(color: tuple[float, float, float]) -> bytes:
     r = int(scale_number(color[0], 0,255,0,1))
     g = int(scale_number(color[1], 0,255,0,1))
     b = int(scale_number(color[2], 0,255,0,1))

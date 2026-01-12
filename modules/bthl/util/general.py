@@ -1,4 +1,4 @@
-import bpy
+#import bpy
 import mathutils
 import math
 
@@ -18,6 +18,6 @@ def convert_blender_quat_to_unity_quat(blender_quat: mathutils.Quaternion) -> ma
     oq = baserot.to_quaternion() @ mathutils.Quaternion((oq.w, oq.x, -oq.y, -oq.z))
     return oq
 
-def convert_unity_quat_to_unity_euler(unity_quat: mathutils.Quaternion, order="ZXY") -> mathutils.Euler:
+def convert_unity_quat_to_unity_euler(unity_quat: mathutils.Quaternion, order: str = "ZXY") -> mathutils.Euler:
     """Converts a Unity Quaternion to a Unity Euler rotation, ZXY is the default application order used by Unity"""
     return unity_quat.to_euler(order)

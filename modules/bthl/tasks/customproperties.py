@@ -4,7 +4,7 @@ from bthl.tasks.task import Task
 from bthl.api.dmxdata import set_channel_value
 from bthl.util.dmx import getColorAsDMX
 
-def handleobjectproperties(object):
+def handleobjectproperties(object: bpy.types.Object):
     properties = {}
     if len(object.keys()) > 1:
         # First item is _RNA_UI
@@ -52,7 +52,7 @@ def handleobjectproperties(object):
                         for i in range(len(coldmx)):
                             set_channel_value(finalChannel + i, coldmx[i])
 
-def update_custom_properties(scene, depsgraph):
+def update_custom_properties(scene: bpy.types.Scene, depsgraph: bpy.types.Depsgraph):
     bad_obj_types = ['CAMERA','LAMP','ARMATURE']
     for obj in scene.objects:
         if obj.type in bad_obj_types:
