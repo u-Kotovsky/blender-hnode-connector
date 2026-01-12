@@ -1,8 +1,8 @@
 import bpy
 
-class OBJECT_OT_copy_custom_property_to_selected(bpy.types.Operator):
-    bl_idname = "object.copy_custom_property_to_selected"
-    bl_label = "Copy Custom Property to Selected Objects"
+class OBJECT_OT_duplicate_custom_property(bpy.types.Operator):
+    bl_idname = "object.duplicate_custom_property"
+    bl_label = "Duplicate Custom Property"
     bl_options = {'REGISTER', 'UNDO'}
 
     property_name: bpy.props.StringProperty()
@@ -22,15 +22,11 @@ class OBJECT_OT_copy_custom_property_to_selected(bpy.types.Operator):
         # UI metadata (if any)
         ui_data = active.id_properties_ui(self.property_name)
 
-        for obj in context.selected_objects:
-            if obj == active:
-                continue
+        active[self.property_name + "COPY"] = value
 
-            obj[self.property_name] = value
-
-            ui = obj.id_properties_ui(self.property_name)
-            if ui_data and ui:
-                ui.update(**ui_data.as_dict())
+        ui = active.id_properties_ui(self.property_name + "COPY")
+        if ui_data and ui:
+            ui.update(**ui_data.as_dict())
 
         return {'FINISHED'}
 
@@ -50,17 +46,16 @@ class OBJECT_OT_copy_custom_property_to_selected(bpy.types.Operator):
         if layout is None:
             return
         op = layout.operator(
-            OBJECT_OT_copy_custom_property_to_selected.bl_idname,
-            text="Copy Custom Property to Selected Objects",
+            OBJECT_OT_duplicate_custom_property.bl_idname,
+            text="Duplicate Custom Property",
             icon='DUPLICATE'
-        
-        #TODO: This doesnt handle data-block properties properly yet..... unsure how to deal with this
+        )
         op.property_name = context.button_prop.identifier
 
     @staticmethod
     def register():
-        bpy.types.UI_MT_button_context_menu.append(OBJECT_OT_copy_custom_property_to_selected.draw_custom_property_context_menu)
+        bpy.types.UI_MT_button_context_menu.append(OBJECT_OT_duplicate_custom_property.draw_custom_property_context_menu)
 
     @staticmethod
     def unregister():
-        bpy.types.UI_MT_button_context_menu.remove(OBJECT_OT_copy_custom_property_to_selected.draw_custom_property_context_menu)
+        bpy.types.UI_MT_button_context_menu.remove(OBJECT_OT_duplicate_custom_property.draw_custom_property_context_menu)

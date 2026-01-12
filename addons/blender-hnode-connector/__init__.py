@@ -1,6 +1,6 @@
 bl_info = {
     "name": "Blender to HNode link",
-    "blender": (4, 50, 0),
+    "blender": (4, 5, 0),
     "category": "Object",
 }
 
@@ -11,6 +11,7 @@ from bthl.panel.global_control import GlobalControlPanel
 from bthl.operator.sender_modal import UDPClientToggleModal
 from bthl.operator.copy_property import OBJECT_OT_copy_custom_property_to_selected
 from bthl.operator.setup_dmx_properties import OBJECT_OT_add_base_dmx_custom_properties
+from bthl.operator.duplicate_property import OBJECT_OT_duplicate_custom_property
 from bthl.tasks.sender import UDPClientTasks
 from bthl.tasks.customproperties import CustomPropertiesTask
 from bthl.tasks.receiver import receive
@@ -20,6 +21,7 @@ classes = {
     UDPClientToggleModal,
     OBJECT_OT_copy_custom_property_to_selected,
     OBJECT_OT_add_base_dmx_custom_properties,
+    OBJECT_OT_duplicate_custom_property,
 }
 
 tasks = {

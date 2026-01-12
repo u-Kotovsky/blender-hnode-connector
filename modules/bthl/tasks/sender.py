@@ -61,10 +61,17 @@ def send(scene, depsgraph):
         #print(message)
         send_udp_packet(target_ip, target_port, message)
         time.sleep(0.001)  # brief pause to avoid overwhelming the network
-    
+
+def clear_buffer(scene, depsgraph):
+    dmx_buffer.clear()
+
 class UDPClientTasks(Task):
     functions = {
+        "depsgraph_update_pre": clear_buffer,
         "depsgraph_update_post": send,
+
+        "frame_change_pre": clear_buffer,
         "frame_change_post": send,
+
         "load_post": send,
     }
