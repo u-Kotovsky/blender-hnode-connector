@@ -41,7 +41,14 @@ def getQuaternionAsDMX(rot: Quaternion, range: int, bytesPerAxis: int = 1) -> by
     return bytearray(xbytes + ybytes + zbytes + wbytes)
 
 def getColorAsDMX(color: tuple[float, float, float]) -> bytes:
-    r = int(scale_number(color[0], 0,255,0,1))
-    g = int(scale_number(color[1], 0,255,0,1))
-    b = int(scale_number(color[2], 0,255,0,1))
-    return bytes([r, g, b])
+    return getTupleAsDMX(color)
+
+def getTupleAsDMX(tup: tuple) -> bytes:
+    barray = bytearray()
+    for val in tup:
+        if isinstance(val, float):
+            scaled = int(scale_number(val, 0,255,0,1))
+            barray.append(scaled)
+        elif isinstance(val, int):
+            barray.append(val)
+    return bytes(barray)

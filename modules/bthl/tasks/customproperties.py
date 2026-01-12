@@ -2,7 +2,7 @@ import idprop
 import bpy
 from bthl.tasks.task import Task
 from bthl.api.dmxdata import set_channel_value
-from bthl.util.dmx import getColorAsDMX
+from bthl.util.dmx import getColorAsDMX, getTupleAsDMX
 
 def handleobjectproperties(object: bpy.types.Object):
     properties = {}
@@ -45,12 +45,19 @@ def handleobjectproperties(object: bpy.types.Object):
                     remapped = int(value * 255)
                     print(remapped)
                     set_channel_value(finalChannel, remapped)
-                elif type == type(idprop.types.IDPropertyArray) and subtype == "COLOR": #linear color
+                elif typ == type(idprop.types.IDPropertyArray):
                     #print(value.typecode)
-                    if value.typecode == "f" or value.typecode == "d":
-                        coldmx = getColorAsDMX(value)
-                        for i in range(len(coldmx)):
-                            set_channel_value(finalChannel + i, coldmx[i])
+                    dmx = getTupleAsDMX(value)
+                    for i in range(len(dmx)):
+                        set_channel_value(finalChannel + i, dmx[i])
+                #handle data blocks
+                elif typ == type(bpy.types.Text):
+                    #exec the text block as python
+                    textblock: bpy.types.Text = value
+                    local_dict = {}
+                    #pass in the channel index
+                    local_dict["finalChannel"] = finalChannel
+                    exec(textblock.as_string(), {}, local_dict)
 
 def update_custom_properties(scene: bpy.types.Scene, depsgraph: bpy.types.Depsgraph):
     bad_obj_types = ['CAMERA','LAMP','ARMATURE']
