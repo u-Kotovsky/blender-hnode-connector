@@ -3,6 +3,8 @@ import bpy
 from bthl.tasks.task import Task
 from bthl.api.dmxdata import set_channel_value
 from bthl.util.dmx import getColorAsDMX, getTupleAsDMX
+import mathutils
+import math
 
 def handleobjectproperties(object: bpy.types.Object):
     properties = {}
@@ -51,6 +53,7 @@ def handleobjectproperties(object: bpy.types.Object):
                     for i in range(len(dmx)):
                         set_channel_value(finalChannel + i, dmx[i])
                 #handle data blocks
+                #Text os executed as python code with finalChannel passed in
                 elif typ == type(bpy.types.Text):
                     #exec the text block as python
                     textblock: bpy.types.Text = value
@@ -58,6 +61,22 @@ def handleobjectproperties(object: bpy.types.Object):
                     #pass in the channel index
                     local_dict["finalChannel"] = finalChannel
                     exec(textblock.as_string(), {}, local_dict)
+                #objects are treated as directional pointers for pan/tilt
+                elif typ == bpy.types.Object:
+                    target_obj: bpy.types.Object = value
+                    direction = target_obj.location - object.location
+                    #calculate pan/tilt from direction vector
+                    direction.normalize()
+                    #pan is rotation around z axis
+                    pan = mathutils.Vector((direction.x, direction.y)).angle_signed(mathutils.Vector((1,0)))
+                    #tilt is rotation around x axis
+                    tilt = math.asin(direction.z)
+                    #remap pan from -pi to pi to 0-255
+                    #TODO: determine a format to define the range here instead of hardcoding pi as this is based on the vrchat fixture side
+                    pan_remapped = int((pan + math.pi) / (2 * math.pi) * 255)
+                    tilt_remapped = int((tilt + (math.pi/2)) / math.pi * 255)
+                    set_channel_value(finalChannel, pan_remapped)
+                    set_channel_value(finalChannel + 1, tilt_remapped)
 
 def update_custom_properties(scene: bpy.types.Scene, depsgraph: bpy.types.Depsgraph):
     bad_obj_types = ['CAMERA','LAMP','ARMATURE']
