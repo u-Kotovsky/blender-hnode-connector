@@ -13,6 +13,14 @@ def getPositionAsDMX(loc: Vector, range: int, bytesPerAxis: int = 1) -> bytearra
     zbytes = struct.pack('>I', zscale)[-bytesPerAxis:]
     return bytearray(xbytes + ybytes + zbytes)
 
+def getPanTiltAsDMX(pan: float, tilt: float, panRange: int, tiltRange: int, bytesPerAxis: int = 2) -> bytearray:
+    pan_remapped = int(scale_number(pan, 0, (2**(8*bytesPerAxis))-1, 0, panRange))
+    tilt_remapped = int(scale_number(tilt, 0, (2**(8*bytesPerAxis))-1, 0, tiltRange))
+    #now convert to bytes
+    panbytes = struct.pack('>I', pan_remapped)[-bytesPerAxis:]
+    tiltbytes = struct.pack('>I', tilt_remapped)[-bytesPerAxis:]
+    return bytearray(panbytes + tiltbytes)
+
 def getRotationAsDMX(rot: Euler, range: int, bytesPerAxis: int = 1) -> bytearray:
     #constrict to 360 degrees as theres no point going beyond
     rot.x = rot.x % math.radians(360)

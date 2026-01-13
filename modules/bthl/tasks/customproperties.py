@@ -2,7 +2,8 @@ import idprop
 import bpy
 from bthl.tasks.task import Task
 from bthl.api.dmxdata import set_channel_value
-from bthl.util.dmx import getColorAsDMX, getTupleAsDMX
+from bthl.util.dmx import getColorAsDMX, getTupleAsDMX, getPanTiltAsDMX
+from bthl.util.general import scale_number
 import mathutils
 import math
 
@@ -83,19 +84,29 @@ def handleobjectproperties(object: bpy.types.Object):
                     #objects are treated as directional pointers for pan/tilt
                     elif typ == bpy.types.Object:
                         target_obj: bpy.types.Object = value
-                        direction = target_obj.location - object.location
+                        #get world space position lol
+                        target_loc = target_obj.matrix_world.translation
+                        object_matrix = object.matrix_world.copy()
+                        #rotate it 90 degrees on an axis to make it correct
+                        object_matrix = object_matrix @ mathutils.Matrix.Rotation(math.radians(-90), 4, 'Y')
+                        #we want to convert the targets world space location to object space
+                        target_loc = object_matrix.inverted() @ target_loc
+                        #direction = target_loc - object_loc
+                        direction = target_loc
                         #calculate pan/tilt from direction vector
                         direction.normalize()
+
+                        #print(rotation.to_euler())
                         #pan is rotation around z axis
-                        pan = mathutils.Vector((direction.x, direction.y)).angle_signed(mathutils.Vector((1,0)))
+                        pan = math.atan2(direction.y, direction.x)
                         #tilt is rotation around x axis
                         tilt = math.asin(direction.z)
-                        #remap pan from -pi to pi to 0-255
-                        #TODO: determine a format to define the range here instead of hardcoding pi as this is based on the vrchat fixture side
-                        pan_remapped = int((pan + math.pi) / (2 * math.pi) * 255)
-                        tilt_remapped = int((tilt + (math.pi/2)) / math.pi * 255)
-                        set_channel_value(finalChannel, pan_remapped)
-                        set_channel_value(finalChannel + 1, tilt_remapped)
+                        #wrap both around 360
+                        pan = pan % math.radians(360)
+                        tilt = tilt % math.radians(360)
+                        dmx = getPanTiltAsDMX(math.degrees(pan), math.degrees(tilt), 540, 540, bytesPerAxis=2)
+                        for i in range(len(dmx)):
+                            set_channel_value(finalChannel + i, dmx[i])
 
 def update_custom_properties(scene: bpy.types.Scene, depsgraph: bpy.types.Depsgraph):
     bad_obj_types = ['CAMERA','LAMP','ARMATURE']
