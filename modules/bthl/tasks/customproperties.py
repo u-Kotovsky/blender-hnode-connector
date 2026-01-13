@@ -57,7 +57,7 @@ def handleobjectproperties(object: bpy.types.Object):
                     if typ == int:
                         set_channel_value(finalChannel, value)
                     elif typ == float:
-                        remapped = int(value * 255)
+                        remapped = int((value / 100) * 255)
                         #print(remapped)
                         set_channel_value(finalChannel, remapped)
                     elif typ == bool:
