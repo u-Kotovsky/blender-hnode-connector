@@ -25,8 +25,8 @@ classes = {
 }
 
 tasks = {
-    UDPClientTasks,
     CustomPropertiesTask,
+    UDPClientTasks, #This MUST be last so everything above it is allowed to run
 }
 
 def register():

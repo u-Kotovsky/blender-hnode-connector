@@ -7,6 +7,7 @@ import mathutils
 import math
 
 def handleobjectproperties(object: bpy.types.Object):
+    print("Handling properties for object:", object.name)
     properties = {}
     if len(object.keys()) > 1:
         # First item is _RNA_UI
@@ -15,6 +16,7 @@ def handleobjectproperties(object: bpy.types.Object):
                 try:
                     prop_ui = object.id_properties_ui(K)
                 except TypeError: # does not support ui data
+                    print("No UI data for property:", K)
                     continue
                 dict = prop_ui.as_dict()
                 dict["value"] = object[K]
@@ -29,6 +31,7 @@ def handleobjectproperties(object: bpy.types.Object):
         
         #now that we have the global channel index, interpret all custom props that have descriptions as offsets to the base channel
         for p in properties:
+            #print("Processing property:", p)
             #ignore universe and channel props
             if p in ["Universe","Channel"]:
                 continue
@@ -49,13 +52,20 @@ def handleobjectproperties(object: bpy.types.Object):
                     subtype = props["subtype"]
                     value = props["value"]
                     typ = type(value)
-                    #print(typ)
+                    # if object.name == "Clouds":
+                    #     print(typ)
                     if typ == int:
                         set_channel_value(finalChannel, value)
                     elif typ == float:
                         remapped = int(value * 255)
                         #print(remapped)
                         set_channel_value(finalChannel, remapped)
+                    elif typ == bool:
+                        #TODO: Allow defining this via description standard
+                        realval = 0
+                        if value:
+                            realval = 20
+                        set_channel_value(finalChannel, realval)
                     elif typ == idprop.types.IDPropertyArray:
                         #print(value.typecode)
                         dmx = getTupleAsDMX(value)

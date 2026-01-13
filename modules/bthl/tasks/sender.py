@@ -6,8 +6,6 @@ import random
 from bthl.api.dmxdata import dmx_buffer
 from bthl.operator.sender_modal import UDPClientToggleModal
 
-from bthl.api.callbacks import run_callbacks
-
 def send_udp_packet(ip, port, message):
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     try:
@@ -32,45 +30,40 @@ def generateMessage(dmx_buffer):
     return bytes(bmessage)
 
 def send(scene, depsgraph):
+    print("Sending DMX data via UDP...")
     #we should only send if the udp client is active
     if not UDPClientToggleModal.get_udp_client_state(bpy.context):
+        print("UDP Client is not active, skipping send.")
         return
-    
-    #trigger all callbacks to update dmx_buffer
-    run_callbacks()
     
     target_ip = "127.0.0.1"
     target_port = 7000
-    #generate X arbitrary channel data
-    # for i in range(11800):
-    #     if i not in data_dict:
-    #         data_dict[i] = random.randint(0, 255)
-    # for i in range(20):
-    #     if i not in dmx_buffer:
-    #         dmx_buffer[i] = random.randint(0, 255)
+
     fragments = []
     fragmentation_size = 3070 #max size of a udp packet roughly
+
     #loop over every dict object, fragmenting if necessary
     #all we need to do is split the dictionary into smaller dictionaries
+    print(f"Total channels to send: {len(dmx_buffer)}")
     for i in range(0, len(dmx_buffer), fragmentation_size):
         fragment = dict(list(dmx_buffer.items())[i:i+fragmentation_size])
         fragments.append(fragment)
+        print(f"Prepared fragment with {len(fragment)} channels.")
+    
     for fragment in fragments:
         message = generateMessage(fragment)
+        print(f"Sending fragment of size {len(message)} bytes.")
         #print first channel
         #print(message)
         send_udp_packet(target_ip, target_port, message)
         time.sleep(0.001)  # brief pause to avoid overwhelming the network
-
-def clear_buffer(scene, depsgraph):
+    
     dmx_buffer.clear()
 
 class UDPClientTasks(Task):
     functions = {
-        "depsgraph_update_pre": clear_buffer,
         "depsgraph_update_post": send,
 
-        "frame_change_pre": clear_buffer,
         "frame_change_post": send,
 
         "load_post": send,

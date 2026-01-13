@@ -53,7 +53,8 @@ class OBJECT_OT_copy_custom_property_to_selected(bpy.types.Operator):
             OBJECT_OT_copy_custom_property_to_selected.bl_idname,
             text="Copy Custom Property to Selected Objects",
             icon='DUPLICATE'
-        
+        )
+
         #TODO: This doesnt handle data-block properties properly yet..... unsure how to deal with this
         op.property_name = context.button_prop.identifier
 
