@@ -7,7 +7,7 @@ import mathutils
 import math
 
 def handleobjectproperties(object: bpy.types.Object):
-    print("Handling properties for object:", object.name)
+    #print("Handling properties for object:", object.name)
     properties = {}
     if len(object.keys()) > 1:
         # First item is _RNA_UI

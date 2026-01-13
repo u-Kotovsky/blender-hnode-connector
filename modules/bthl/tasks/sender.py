@@ -30,10 +30,10 @@ def generateMessage(dmx_buffer):
     return bytes(bmessage)
 
 def send(scene, depsgraph):
-    print("Sending DMX data via UDP...")
+    #print("Sending DMX data via UDP...")
     #we should only send if the udp client is active
     if not UDPClientToggleModal.get_udp_client_state(bpy.context):
-        print("UDP Client is not active, skipping send.")
+        #print("UDP Client is not active, skipping send.")
         return
     
     target_ip = "127.0.0.1"
@@ -44,15 +44,15 @@ def send(scene, depsgraph):
 
     #loop over every dict object, fragmenting if necessary
     #all we need to do is split the dictionary into smaller dictionaries
-    print(f"Total channels to send: {len(dmx_buffer)}")
+    #print(f"Total channels to send: {len(dmx_buffer)}")
     for i in range(0, len(dmx_buffer), fragmentation_size):
         fragment = dict(list(dmx_buffer.items())[i:i+fragmentation_size])
         fragments.append(fragment)
-        print(f"Prepared fragment with {len(fragment)} channels.")
+        #print(f"Prepared fragment with {len(fragment)} channels.")
     
     for fragment in fragments:
         message = generateMessage(fragment)
-        print(f"Sending fragment of size {len(message)} bytes.")
+        #print(f"Sending fragment of size {len(message)} bytes.")
         #print first channel
         #print(message)
         send_udp_packet(target_ip, target_port, message)
