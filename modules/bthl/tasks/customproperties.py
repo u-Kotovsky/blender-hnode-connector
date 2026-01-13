@@ -62,10 +62,7 @@ def handleobjectproperties(object: bpy.types.Object):
                         set_channel_value(finalChannel, remapped)
                     elif typ == bool:
                         #TODO: Allow defining this via description standard
-                        realval = 0
-                        if value:
-                            realval = 20
-                        set_channel_value(finalChannel, realval)
+                        set_channel_value(finalChannel, 255 if value else 0)
                     elif typ == idprop.types.IDPropertyArray:
                         #print(value.typecode)
                         dmx = getTupleAsDMX(value)
