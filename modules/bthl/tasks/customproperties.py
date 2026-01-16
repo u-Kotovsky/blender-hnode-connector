@@ -58,7 +58,11 @@ def handleobjectproperties(object: bpy.types.Object):
                     if typ == int:
                         set_channel_value(finalChannel, value)
                     elif typ == float:
-                        remapped = int((value / 100) * 255)
+                        #remapped = int((value / 100) * 255)
+                        #remap from the properties min and max if they exist
+                        min_val = props.get("min", 0.0)
+                        max_val = props.get("max", 1.0)
+                        remapped = int(scale_number(value, 0, 255, min_val, max_val))
                         #print(remapped)
                         set_channel_value(finalChannel, remapped)
                     elif typ == bool:
