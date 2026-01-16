@@ -42,7 +42,10 @@ def handleobjectproperties(object: bpy.types.Object):
                     props = properties[p]
                     #check if we can interpret as int
                     try:
-                        offset = int(props["description"])
+                        #read the first section before the first space as the offset
+                        #offset = int(props["description"])
+                        offset_str = props["description"].split(" ")[0]
+                        offset = int(offset_str)
                     except ValueError:
                         print("Not a valid offset:", props["description"])
                         continue
@@ -58,13 +61,20 @@ def handleobjectproperties(object: bpy.types.Object):
                     if typ == int:
                         set_channel_value(finalChannel, value)
                     elif typ == float:
+                        #read the second part of the description and if it says 16bit, we map to 16 bit instead
+                        desc_parts = properties[p]["description"].split(" ")
+                        is_16bit = len(desc_parts) > 1 and desc_parts[1].lower() == "16bit"
                         #remapped = int((value / 100) * 255)
                         #remap from the properties min and max if they exist
                         min_val = props.get("min", 0.0)
                         max_val = props.get("max", 1.0)
-                        remapped = int(scale_number(value, 0, 255, min_val, max_val))
-                        #print(remapped)
-                        set_channel_value(finalChannel, remapped)
+                        if is_16bit:
+                            remapped = int(scale_number(value, 0, 65535, min_val, max_val))
+                            set_channel_value(finalChannel, (remapped >> 8) & 0xFF)
+                            set_channel_value(finalChannel + 1, remapped & 0xFF)
+                        else:
+                            remapped = int(scale_number(value, 0, 255, min_val, max_val))
+                            set_channel_value(finalChannel, remapped)
                     elif typ == bool:
                         #TODO: Allow defining this via description standard
                         set_channel_value(finalChannel, 255 if value else 0)
@@ -108,7 +118,17 @@ def handleobjectproperties(object: bpy.types.Object):
                         #wrap both around 360
                         pan = pan % math.radians(360)
                         tilt = tilt % math.radians(360)
-                        dmx = getPanTiltAsDMX(math.degrees(pan), math.degrees(tilt), 540, 540, bytesPerAxis=2)
+                        #read the next two numbers from the description as pan and tilt ranges
+                        desc_parts = properties[p]["description"].split(" ")
+                        pan_range = 540
+                        tilt_range = 540
+                        if len(desc_parts) >= 3:
+                            try:
+                                pan_range = int(desc_parts[1])
+                                tilt_range = int(desc_parts[2])
+                            except ValueError:
+                                pass
+                        dmx = getPanTiltAsDMX(math.degrees(pan), math.degrees(tilt), pan_range, tilt_range, bytesPerAxis=2)
                         for i in range(len(dmx)):
                             set_channel_value(finalChannel + i, dmx[i])
 
